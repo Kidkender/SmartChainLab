@@ -7,7 +7,7 @@ export function FunctionForm({ fn, address }: { fn: any, address: string }) {
     const [args, setArgs] = useState<string[]>([]);
     const [result, setResult] = useState<string>("");
 
-    const handleCall = async() => {
+    const handleCall = async () => {
         try {
             const res = await client.readContract({
                 address: address as `0x${string}`,
@@ -15,7 +15,9 @@ export function FunctionForm({ fn, address }: { fn: any, address: string }) {
                 functionName: fn.name,
                 args: args
             })
-            setResult(JSON.stringify(res))
+            setResult(JSON.stringify(res, (_, v) =>
+                typeof v === "bigint" ? v.toString() : v
+            ))
         } catch (error) {
             setResult("❌ Error: " + (error as Error).message)
 
