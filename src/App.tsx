@@ -1,6 +1,8 @@
 import { AbiInput } from "@/components/abiInput";
+import { ConnectWallet } from "@/components/ConnectWallet";
 import { FunctionList } from "@/components/functionList";
 import type { ChainInfo } from "@/interfaces/network.type";
+import { Github } from "lucide-react";
 import { useState } from "react";
 
 export default function App() {
@@ -13,17 +15,26 @@ export default function App() {
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="max-w-3xl mx-auto space-y-6">
-        <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-            SmartChainLab <span className="text-xl">🧪</span>
-          </h1>
+        <header className="flex items-center justify-between p-2">
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+              SmartChainLab <span className="text-xl">🧪</span>
+            </h1>
+          </div>
 
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1 shadow-sm">
+              <ConnectWallet onChainChange={setChain} />
+            </div>
+          </div>
           <a
             href="https://github.com/Kidkender/SmartChainLab"
             target="_blank"
-            className="text-sm underline text-blue-600 hover:text-blue-800"
+            rel="noopener noreferrer"
+            className="text-gray-700 hover:text-blue-700 ml-2 flex items-center gap-1"
+            aria-label="GitHub"
           >
-            GitHub
+            <Github size={20} strokeWidth={2} color="black" fill="black" />
           </a>
         </header>
 
@@ -32,11 +43,11 @@ export default function App() {
             🧩 Load Contract ABI
           </h2>
           <AbiInput
-            onSubmit={(abiData, addr, chain) => {
+            onSubmit={(abiData, addr) => {
               setAbi(abiData);
               setAddress(addr);
-              setChain(chain);
             }}
+            chain={chain}
           />
         </section>
 

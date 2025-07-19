@@ -7,7 +7,6 @@ import {
   sendTransaction,
 } from "@/lib/solanaClient";
 import { client as evmClient } from "@/lib/viemClient";
-import { Keypair } from "@solana/web3.js";
 import { useState } from "react";
 
 export function FunctionForm({
@@ -21,8 +20,6 @@ export function FunctionForm({
 }) {
   const [args, setArgs] = useState<string[]>([]);
   const [result, setResult] = useState<string>("");
-  // const secret = Uint8Array.from([]);
-  // const payer = Keypair.fromSecretKey(secret);
 
   const handleCall = async () => {
     if (chain.type === "evm") {
