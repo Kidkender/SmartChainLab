@@ -1,23 +1,23 @@
-import { useState } from "react";
-import { CHAIN_LIST } from "@/data/ChainList";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected } from "wagmi/connectors";
-import { useWallet } from "@solana/wallet-adapter-react";
-import type { ChainInfo } from "@/interfaces/network.type";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { PhantomWalletName } from "@solana/wallet-adapter-wallets";
-import { shortenAddress } from "@/utils/address";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CHAIN_LIST } from "@/data/ChainList";
+import type { ChainInfo } from "@/interfaces/network.type";
+import { shortenAddress } from "@/utils/address";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { PhantomWalletName } from "@solana/wallet-adapter-wallets";
+import { useState } from "react";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { injected } from "wagmi/connectors";
 
 export function ConnectWallet({
   onChainChange,

@@ -1,17 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { wagmiConfig } from "@/config/wagmiConfig";
+import type { AbiItem } from "@/interfaces/function.type";
 import type { ChainInfo } from "@/interfaces/network.type";
 import { createInstruction, getConnection } from "@/lib/solanaClient";
 import { client as evmClient } from "@/lib/viemClient";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 export function FunctionForm({
+  abi,
   fn,
   address,
   chain,
 }: {
+  abi: AbiItem[];
   fn: any;
   address: string;
   chain: ChainInfo;
@@ -20,21 +25,73 @@ export function FunctionForm({
   const [result, setResult] = useState<string>("");
 
   const { publicKey, sendTransaction } = useWallet();
+  const {
+    data: hash,
+    writeContract,
+    isPending: isWriting,
+    error: writeError,
+  } = useWriteContract({ config: wagmiConfig });
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isTxError,
+    error: txError,
+  } = useWaitForTransactionReceipt({ hash });
+
+  useEffect(() => {
+    if (isWriting) {
+      setResult("⏳ Waiting for user confirmation...");
+    } else if (hash) {
+      setResult(
+        "⏳ Transaction sent. Waiting for confirmation... Hash: " + hash
+      );
+    }
+    if (isConfirming) {
+      setResult("⏳ Transaction pending...");
+    }
+    if (isConfirmed) {
+      setResult("✅ Transaction confirmed! Hash: " + hash);
+    }
+    if (writeError) {
+      setResult("❌ Error: " + writeError.message);
+    }
+    if (isTxError && txError) {
+      setResult("❌ Tx Error: " + txError.message);
+    }
+  }, [
+    isWriting,
+    hash,
+    isConfirming,
+    isConfirmed,
+    writeError,
+    isTxError,
+    txError,
+  ]);
 
   const handleCall = async () => {
     if (chain.type === "evm") {
       try {
-        const res = await evmClient.readContract({
-          address: address as `0x${string}`,
-          abi: [fn],
-          functionName: fn.name,
-          args: args,
-        });
-        setResult(
-          JSON.stringify(res, (_, v) =>
-            typeof v === "bigint" ? v.toString() : v
-          )
-        );
+        if (fn.stateMutability === "view" || fn.stateMutability === "pure") {
+          const res = await evmClient.readContract({
+            address: address as `0x${string}`,
+            abi: abi,
+            functionName: fn.name,
+            args: args,
+          });
+          setResult(
+            JSON.stringify(res, (_, v) =>
+              typeof v === "bigint" ? v.toString() : v
+            )
+          );
+        } else {
+          console.log("args:", args);
+          writeContract({
+            address: address as `0x${string}`,
+            abi: abi,
+            functionName: fn.name,
+            args: args,
+          });
+        }
       } catch (error) {
         setResult("❌ Error: " + (error as Error).message);
       }
